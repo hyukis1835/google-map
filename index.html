@@ -15,15 +15,15 @@
       width: 100%;
     }
   </style>
+  <!-- スクロール警告を非表示にしつつ、ドラッグは有効 -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZPRJzf-rbyrdjWjmJYWYpb74dnfLjkHw&language=ja"></script>
 </head>
 <body>
   <div id="map"></div>
   <script>
-    // デフォルト位置をイタリア（ローマ）に設定
-    const defaultLat = 41.9028;  // 緯度（ローマ）
-    const defaultLng = 12.4964;  // 経度（ローマ）
-    const defaultZoom = 6;       // やや広域に表示
+    const defaultLat = 41.9028;  // ローマ
+    const defaultLng = 12.4964;
+    const defaultZoom = 6;
 
     let lat = defaultLat;
     let lng = defaultLng;
@@ -36,18 +36,16 @@
       if (!isNaN(savedLat)) lat = savedLat;
       if (!isNaN(savedLng)) lng = savedLng;
       if (!isNaN(savedZoom)) zoom = savedZoom;
-    } catch (e) {
-      // localStorage未対応時のフォールバック
-    }
+    } catch (e) {}
 
     const map = new google.maps.Map(document.getElementById('map'), {
       center: { lat: lat, lng: lng },
       zoom: zoom,
       mapTypeId: 'roadmap',
-      gestureHandling: 'none',
+      gestureHandling: 'cooperative', // ← これで警告を非表示にし、ドラッグ可
       disableDoubleClickZoom: true,
-      scrollwheel: false,
-      draggable: false
+      scrollwheel: false, // マウスホイールズーム無効
+      draggable: true     // ドラッグ有効
     });
 
     const kmlLayer = new google.maps.KmlLayer({
@@ -63,9 +61,7 @@
         localStorage.setItem('mapLng', center.lng());
         localStorage.setItem('mapZoom', map.getZoom());
       });
-    } catch (e) {
-      // スマホ版 NotionアプリなどでlocalStorage未使用
-    }
+    } catch (e) {}
   </script>
 </body>
 </html>
