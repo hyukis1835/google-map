@@ -12,6 +12,7 @@
     #map {
       height: 100%;
       width: 100%;
+      border: none;
     }
   </style>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZPRJzf-rbyrdjWjmJYWYpb74dnfLjkHw&language=ja"></script>
@@ -19,32 +20,39 @@
 <body>
   <div id="map"></div>
   <script>
-    // デフォルト位置（東京駅）
+    // デフォルト位置（東京駅）とズーム
     const defaultPosition = { lat: 35.6811673, lng: 139.7670516 };
     const savedLat = localStorage.getItem('lastLat');
     const savedLng = localStorage.getItem('lastLng');
+    const savedZoom = localStorage.getItem('lastZoom');
+
     const centerPosition = (savedLat && savedLng)
       ? { lat: parseFloat(savedLat), lng: parseFloat(savedLng) }
       : defaultPosition;
 
     const map = new google.maps.Map(document.getElementById('map'), {
       center: centerPosition,
-      zoom: 15,
+      zoom: savedZoom ? parseInt(savedZoom) : 15,
       mapTypeId: 'roadmap',
-      gestureHandling: 'greedy'
+      gestureHandling: 'greedy' // スクロール時にCtrlなど不要
     });
 
-    // 現在の中心位置を保存
+    // 中心とズームレベルの保存
     map.addListener('center_changed', () => {
       const center = map.getCenter();
       localStorage.setItem('lastLat', center.lat());
       localStorage.setItem('lastLng', center.lng());
     });
 
+    map.addListener('zoom_changed', () => {
+      localStorage.setItem('lastZoom', map.getZoom());
+    });
+
+    // KML レイヤー追加
     const kmlLayer = new google.maps.KmlLayer({
-      url: window.location.origin + '/map.kml',
+      url: window.location.origin + '/map.kml', // GitHub Pages 等で map.kml を同じ階層に置く
       map: map,
-      preserveViewport: true
+      preserveViewport: true // 現在の中心位置を維持
     });
   </script>
 </body>
