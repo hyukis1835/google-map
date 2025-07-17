@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
-  <Document>
-    <name>イタリア共和国</name>
-    <NetworkLink>
-      <name>世界遺産</name>
-      <Link>
-        <href><![CDATA[https://www.google.com/maps/d/u/0/kml?forcekml=1&mid=1MZYXz2u_tau6wFZzR-Tx1EAKuO70bdg&lid=Uy1zZiVueAM]]></href>
-      </Link>
-    </NetworkLink>
-  </Document>
+<Document>
+  <Placemark>
+    <name>サンプル地点</name>
+    <Point>
+      <coordinates>139.7670516,35.6811673,0</coordinates>
+    </Point>
+  </Placemark>
+</Document>
 </kml>
