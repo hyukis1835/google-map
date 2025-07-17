@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>カスタム Google Map</title>
+  <title>カスタム Google Map（イタリア）</title>
   <style>
     html, body {
       height: 100%;
@@ -20,38 +20,52 @@
 <body>
   <div id="map"></div>
   <script>
-    const defaultLat = 35.6811673;
-    const defaultLng = 139.7670516;
-    const defaultZoom = 14;
+    // デフォルト位置をイタリア（ローマ）に設定
+    const defaultLat = 41.9028;  // 緯度（ローマ）
+    const defaultLng = 12.4964;  // 経度（ローマ）
+    const defaultZoom = 6;       // やや広域に表示
 
-    const savedLat = parseFloat(localStorage.getItem('mapLat'));
-    const savedLng = parseFloat(localStorage.getItem('mapLng'));
-    const savedZoom = parseFloat(localStorage.getItem('mapZoom'));
+    let lat = defaultLat;
+    let lng = defaultLng;
+    let zoom = defaultZoom;
+
+    try {
+      const savedLat = parseFloat(localStorage.getItem('mapLat'));
+      const savedLng = parseFloat(localStorage.getItem('mapLng'));
+      const savedZoom = parseFloat(localStorage.getItem('mapZoom'));
+      if (!isNaN(savedLat)) lat = savedLat;
+      if (!isNaN(savedLng)) lng = savedLng;
+      if (!isNaN(savedZoom)) zoom = savedZoom;
+    } catch (e) {
+      // localStorage未対応時のフォールバック
+    }
 
     const map = new google.maps.Map(document.getElementById('map'), {
-      center: {
-        lat: savedLat || defaultLat,
-        lng: savedLng || defaultLng
-      },
-      zoom: savedZoom || defaultZoom,
+      center: { lat: lat, lng: lng },
+      zoom: zoom,
       mapTypeId: 'roadmap',
-      gestureHandling: 'greedy' // ← スマホで1本指操作可能
+      gestureHandling: 'none',
+      disableDoubleClickZoom: true,
+      scrollwheel: false,
+      draggable: false
     });
 
-    // KMLレイヤーを追加
     const kmlLayer = new google.maps.KmlLayer({
       url: `${location.origin}/map.kml`,
       map: map,
-      preserveViewport: true // ← マップの初期位置をKMLに上書きされないようにする
+      preserveViewport: true
     });
 
-    // マップの移動・ズームを記録
-    map.addListener('idle', () => {
-      const center = map.getCenter();
-      localStorage.setItem('mapLat', center.lat());
-      localStorage.setItem('mapLng', center.lng());
-      localStorage.setItem('mapZoom', map.getZoom());
-    });
+    try {
+      map.addListener('idle', () => {
+        const center = map.getCenter();
+        localStorage.setItem('mapLat', center.lat());
+        localStorage.setItem('mapLng', center.lng());
+        localStorage.setItem('mapZoom', map.getZoom());
+      });
+    } catch (e) {
+      // スマホ版 NotionアプリなどでlocalStorage未使用
+    }
   </script>
 </body>
 </html>
