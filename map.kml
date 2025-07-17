@@ -9,7 +9,7 @@
     </Style>
 
     <Placemark>
-      <name>1. 東京</name>
+      <name>東京</name>
       <styleUrl>#orange-circle</styleUrl>
       <Point>
         <coordinates>139.6917,35.6895,0</coordinates>
