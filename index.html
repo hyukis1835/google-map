@@ -3,18 +3,16 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>カスタム Google Map（イタリア）</title>
+  <title>Custom Google Map</title>
   <style>
-    html, body {
+    html, body, #map {
       height: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden;
     }
-    #map {
-      height: 100%;
-      width: 100%;
-      touch-action: none; /* スマホで1本指スクロール無効化 */
+    /* モバイルで1本指スクロール禁止 */
+    body {
+      touch-action: pan-x pan-y;
     }
   </style>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZPRJzf-rbyrdjWjmJYWYpb74dnfLjkHw&language=ja"></script>
@@ -22,48 +20,33 @@
 <body>
   <div id="map"></div>
   <script>
-    const defaultLat = 41.9028;
-    const defaultLng = 12.4964;
-    const defaultZoom = 6;
+    let defaultCenter = { lat: 41.9028, lng: 12.4964 }; // イタリア（ローマ）
+    let defaultZoom = 6;
 
-    let lat = defaultLat;
-    let lng = defaultLng;
-    let zoom = defaultZoom;
+    const savedCenter = JSON.parse(localStorage.getItem("mapCenter"));
+    const savedZoom = parseInt(localStorage.getItem("mapZoom"));
 
-    try {
-      const savedLat = parseFloat(localStorage.getItem('mapLat'));
-      const savedLng = parseFloat(localStorage.getItem('mapLng'));
-      const savedZoom = parseFloat(localStorage.getItem('mapZoom'));
-      if (!isNaN(savedLat)) lat = savedLat;
-      if (!isNaN(savedLng)) lng = savedLng;
-      if (!isNaN(savedZoom)) zoom = savedZoom;
-    } catch (e) {}
-
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-    const map = new google.maps.Map(document.getElementById('map'), {
-      center: { lat: lat, lng: lng },
-      zoom: zoom,
-      mapTypeId: 'roadmap',
-      gestureHandling: isTouchDevice ? 'cooperative' : 'greedy',  // スマホでは2本指スクロール, PCはホイールズーム可
-      draggable: true,
-      scrollwheel: !isTouchDevice  // スマホでは無効、PCでは有効
+    const map = new google.maps.Map(document.getElementById("map"), {
+      center: savedCenter || defaultCenter,
+      zoom: savedZoom || defaultZoom,
+      mapTypeId: "roadmap",
+      gestureHandling: "greedy",  // PCでスクロールズーム可・モバイルは警告なし2本指操作のみ
+      disableDoubleClickZoom: false // ダブルクリックズームを有効に
     });
 
+    // KML Layer 読み込み
     const kmlLayer = new google.maps.KmlLayer({
-      url: `${location.origin}/map.kml`,
+      url: location.origin + location.pathname.replace(/\/[^/]*$/, '') + '/map.kml',
       map: map,
       preserveViewport: true
     });
 
-    try {
-      map.addListener('idle', () => {
-        const center = map.getCenter();
-        localStorage.setItem('mapLat', center.lat());
-        localStorage.setItem('mapLng', center.lng());
-        localStorage.setItem('mapZoom', map.getZoom());
-      });
-    } catch (e) {}
+    // 位置とズームの記憶
+    map.addListener("idle", () => {
+      const center = map.getCenter();
+      localStorage.setItem("mapCenter", JSON.stringify({ lat: center.lat(), lng: center.lng() }));
+      localStorage.setItem("mapZoom", map.getZoom());
+    });
   </script>
 </body>
 </html>
