@@ -15,7 +15,6 @@
       width: 100%;
     }
   </style>
-  <!-- スクロール警告を非表示にしつつ、ドラッグは有効 -->
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZPRJzf-rbyrdjWjmJYWYpb74dnfLjkHw&language=ja"></script>
 </head>
 <body>
@@ -42,10 +41,10 @@
       center: { lat: lat, lng: lng },
       zoom: zoom,
       mapTypeId: 'roadmap',
-      gestureHandling: 'cooperative', // ← これで警告を非表示にし、ドラッグ可
+      gestureHandling: 'greedy', // ← PCでもドラッグ可能・スマホ警告非表示
       disableDoubleClickZoom: true,
       scrollwheel: false, // マウスホイールズーム無効
-      draggable: true     // ドラッグ有効
+      draggable: true     // 念のため明示
     });
 
     const kmlLayer = new google.maps.KmlLayer({
