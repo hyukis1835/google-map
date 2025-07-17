@@ -1,52 +1,78 @@
 
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Custom Google Map</title>
+  <meta charset="utf-8">
+  <title>世界遺産マップ</title>
   <style>
-    html, body, #map {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    #map {
+      height: 100vh;
+      width: 100%;
     }
-    /* モバイルで1本指スクロール禁止 */
-    body {
-      touch-action: pan-x pan-y;
+    .label {
+      background-color: orange;
+      border-radius: 50%;
+      color: white;
+      padding: 4px 8px;
+      font-size: 14px;
+      font-weight: bold;
+      border: 2px solid white;
+      box-shadow: 0 0 3px rgba(0,0,0,0.6);
     }
   </style>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZPRJzf-rbyrdjWjmJYWYpb74dnfLjkHw&language=ja"></script>
 </head>
 <body>
   <div id="map"></div>
   <script>
-    let defaultCenter = { lat: 41.9028, lng: 12.4964 }; // イタリア（ローマ）
-    let defaultZoom = 6;
+    let map;
+    const locations = [
+      { name: "東京", lat: 35.6895, lng: 139.6917 },
+      { name: "ローマ", lat: 41.9028, lng: 12.4964 },
+      { name: "カイロ", lat: 30.0444, lng: 31.2357 }
+    ];
 
-    const savedCenter = JSON.parse(localStorage.getItem("mapCenter"));
-    const savedZoom = parseInt(localStorage.getItem("mapZoom"));
+    function initMap() {
+      const savedCenter = JSON.parse(localStorage.getItem("mapCenter"));
+      const savedZoom = JSON.parse(localStorage.getItem("mapZoom"));
+      const center = savedCenter || { lat: 41.9028, lng: 12.4964 }; // default: ローマ
+      const zoom = savedZoom || 5;
 
-    const map = new google.maps.Map(document.getElementById("map"), {
-      center: savedCenter || defaultCenter,
-      zoom: savedZoom || defaultZoom,
-      mapTypeId: "roadmap",
-      gestureHandling: "greedy",  // PCでスクロールズーム可・モバイルは警告なし2本指操作のみ
-      disableDoubleClickZoom: false // ダブルクリックズームを有効に
-    });
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: center,
+        zoom: zoom,
+        gestureHandling: "greedy",
+        disableDoubleClickZoom: false,
+        draggable: true
+      });
 
-    // KML Layer 読み込み
-    const kmlLayer = new google.maps.KmlLayer({
-      url: location.origin + location.pathname.replace(/\/[^/]*$/, '') + '/map.kml',
-      map: map,
-      preserveViewport: true
-    });
+      map.addListener("idle", () => {
+        localStorage.setItem("mapCenter", JSON.stringify(map.getCenter().toJSON()));
+        localStorage.setItem("mapZoom", JSON.stringify(map.getZoom()));
+      });
 
-    // 位置とズームの記憶
-    map.addListener("idle", () => {
-      const center = map.getCenter();
-      localStorage.setItem("mapCenter", JSON.stringify({ lat: center.lat(), lng: center.lng() }));
-      localStorage.setItem("mapZoom", map.getZoom());
-    });
+      locations.forEach((loc, index) => {
+        new google.maps.Marker({
+          position: { lat: loc.lat, lng: loc.lng },
+          map: map,
+          label: {
+            text: (index + 1).toString(),
+            color: "white",
+            fontWeight: "bold",
+            fontSize: "14px"
+          },
+          icon: {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 12,
+            fillColor: "orange",
+            fillOpacity: 1,
+            strokeWeight: 2,
+            strokeColor: "white"
+          },
+          title: loc.name
+        });
+      });
+    }
   </script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 </body>
 </html>
