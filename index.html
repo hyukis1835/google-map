@@ -20,40 +20,37 @@
 <body>
   <div id="map"></div>
   <script>
-    // デフォルト位置（東京駅）とズーム
-    const defaultPosition = { lat: 35.6811673, lng: 139.7670516 };
-    const savedLat = localStorage.getItem('lastLat');
-    const savedLng = localStorage.getItem('lastLng');
-    const savedZoom = localStorage.getItem('lastZoom');
+  const defaultPosition = { lat: 35.6811673, lng: 139.7670516 };
+  const savedLat = parseFloat(localStorage.getItem('lastLat'));
+  const savedLng = parseFloat(localStorage.getItem('lastLng'));
+  const savedZoom = parseInt(localStorage.getItem('lastZoom'));
 
-    const centerPosition = (savedLat && savedLng)
-      ? { lat: parseFloat(savedLat), lng: parseFloat(savedLng) }
-      : defaultPosition;
+  const map = new google.maps.Map(document.getElementById('map'), {
+    center: (!isNaN(savedLat) && !isNaN(savedLng)) ? { lat: savedLat, lng: savedLng } : defaultPosition,
+    zoom: !isNaN(savedZoom) ? savedZoom : 14,
+    mapTypeId: 'roadmap',
+    gestureHandling: 'greedy'
+  });
 
-    const map = new google.maps.Map(document.getElementById('map'), {
-      center: centerPosition,
-      zoom: savedZoom ? parseInt(savedZoom) : 15,
-      mapTypeId: 'roadmap',
-      gestureHandling: 'greedy' // スクロール時にCtrlなど不要
-    });
+  const kmlLayer = new google.maps.KmlLayer({
+    url: window.location.origin + '/map.kml',
+    map: map,
+    preserveViewport: true
+  });
 
-    // 中心とズームレベルの保存
-    map.addListener('center_changed', () => {
+  // 少し遅らせて保存することでズレ防止
+  let saveTimer;
+  function saveMapState() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
       const center = map.getCenter();
       localStorage.setItem('lastLat', center.lat());
       localStorage.setItem('lastLng', center.lng());
-    });
-
-    map.addListener('zoom_changed', () => {
       localStorage.setItem('lastZoom', map.getZoom());
-    });
+    }, 1000);
+  }
 
-    // KML レイヤー追加
-    const kmlLayer = new google.maps.KmlLayer({
-      url: window.location.origin + '/map.kml', // GitHub Pages 等で map.kml を同じ階層に置く
-      map: map,
-      preserveViewport: true // 現在の中心位置を維持
-    });
-  </script>
+  map.addListener('idle', saveMapState);
+</script>
 </body>
 </html>
