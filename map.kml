@@ -1,11 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
-<Document>
-  <Placemark>
-    <name>サンプル地点</name>
-    <Point>
-      <coordinates>139.7670516,35.6811673,0</coordinates>
-    </Point>
-  </Placemark>
-</Document>
+  <Document>
+    <Style id="orange-circle">
+      <IconStyle>
+        <Icon>
+          <href>https://maps.google.com/mapfiles/ms/icons/orange-dot.png</href>
+        </Icon>
+      </IconStyle>
+    </Style>
+
+    <Placemark>
+      <name>1. サンプル地点</name>
+      <styleUrl>#orange-circle</styleUrl>
+      <Point>
+        <coordinates>139.6917,35.6895,0</coordinates>
+      </Point>
+    </Placemark>
+  </Document>
 </kml>
